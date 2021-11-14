@@ -1,35 +1,54 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './App.css';
 
 class App extends Component {
-  state = {
-    posts: [],
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      URL: 'https://jsonplaceholder.typicode.com/posts',
+      posts: [],
+    };
 
-  handleAdd = () => {
-    console.log('Add');
-  };
+    this.handleAdd = this.handleAdd.bind(this);
+  }
 
-  handleUpdate = (post) => {
+  async componentDidMount() {
+    const promise = await axios.get('https://jsonplaceholder.typicode.com/posts');
+    const posts = promise.data;
+
+    this.setState({ posts });
+  }
+
+  async handleAdd() {
+    const item = { id: '', title: 'New', body: 'Lorem ipsum' };
+    const promise = await axios.post(this.state.URL, item);
+    const post = promise.data;
+
+    const posts = [post, ...this.state.posts]; // TODO: Add at the beginning of the list
+    this.setState({ posts });
+  }
+
+  handleUpdate(post) {
     console.log('Update', post);
-  };
+  }
 
-  handleDelete = (post) => {
+  handleDelete(post) {
     console.log('Delete', post);
-  };
+  }
 
   render() {
     return (
       <React.Fragment>
-        <button className="btn btn-primary" onClick={this.handleAdd}>
-          Add
+        <p className="fw-light text-end">Viewing {this.state.posts.length} Entries</p>
+        <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
+          Add Post
         </button>
         <table className="table">
           <thead>
             <tr>
               <th>Title</th>
-              <th>Update</th>
-              <th>Delete</th>
+              <th colSpan={2}>Handle Data</th>
             </tr>
           </thead>
           <tbody>
@@ -37,7 +56,7 @@ class App extends Component {
               <tr key={post.id}>
                 <td>{post.title}</td>
                 <td>
-                  <button className="btn btn-info btn-sm" onClick={() => this.handleUpdate(post)}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => this.handleUpdate(post)}>
                     Update
                   </button>
                 </td>
