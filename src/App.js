@@ -55,13 +55,13 @@ class App extends Component {
   // }
 
   async componentDidMount() {
-    // DOC: Read data form the API endpoint and update the table
+    // DOC: Read data form the API endpoint and update the view
     const { data: posts } = await axios.get(this.state.apiEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
-    // DOC: Add a post on the endpoint, then add to the table
+    // DOC: Create a post on the endpoint, then update the view
     const item = { title: 'Lorem', body: 'Lorem ipsum' };
     const { data: post } = await axios.post(this.state.apiEndpoint, item);
 
@@ -70,7 +70,7 @@ class App extends Component {
   }
 
   async handleUpdate(post) {
-    // DOC: Update a post on the endpoint, then update in the table
+    // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
     await axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
 
@@ -81,20 +81,34 @@ class App extends Component {
   }
 
   async handleDelete(post) {
-    // DOC: Delete a post on the endpoint, then remove from the table
-    await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
-
+    // DOC: Optimistically deletes an item. Then try a DELETE request, if failed, reverts the state.
     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
     this.setState({ posts });
+
+    const revert = this.state.posts;
+
+    try {
+      await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+      console.info('Operation succeeded');
+    } catch (err) {
+      this.setState({ posts: revert });
+      console.error('Operation failed');
+    }
   }
 
   render() {
     return (
       <React.Fragment>
-        <p className="fw-light text-end">Viewing {this.state.posts.length} entries</p>
-        <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
-          Add Post
-        </button>
+        <div className="row align-items-end">
+          <div className="col">
+            <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
+              Add Post
+            </button>
+          </div>
+          <div className="col">
+            <p className="fw-light text-end">Viewing {this.state.posts.length} entries</p>
+          </div>
+        </div>
         <table className="table">
           <thead>
             <tr>
