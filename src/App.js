@@ -6,31 +6,62 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      URL: 'https://jsonplaceholder.typicode.com/posts',
+      apiEndpoint: 'https://jsonplaceholder.typicode.com/posts',
       posts: [],
     };
 
     this.handleAdd = this.handleAdd.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
   }
 
-  async componentDidMount() {
-    const promise = await axios.get('https://jsonplaceholder.typicode.com/posts');
-    const posts = promise.data;
+  // componentDidMount() {
+  //   const promise = axios.get(this.state.apiEndpoint);
+  //   promise.then((res) => {
+  //     const posts = res.data;
+  //     this.setState({ posts });
+  //   });
+  // }
 
+  // handleAdd() {
+  //   const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
+  //   const promise = axios.post(this.state.apiEndpoint, item);
+  //   promise.then((res) => {
+  //     const post = res.data;
+  //     const posts = [post, ...this.state.posts];
+  //     this.setState({ posts });
+  //   });
+  // }
+
+  // handleUpdate(post) {
+  //   post.title = 'Updated';
+  //   const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+  //   promise.then((res) => {
+  //     const posts = this.state.posts;
+  //     const index = posts.indexOf(res.data);
+  //     posts[index] = post;
+  //     this.setState({ posts });
+  //   });
+  // }
+
+  async componentDidMount() {
+    const { data: posts } = await axios.get(this.state.apiEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
-    const item = { id: '', title: 'New', body: 'Lorem ipsum' };
-    const promise = await axios.post(this.state.URL, item);
-    const post = promise.data;
-
-    const posts = [post, ...this.state.posts]; // TODO: Add at the beginning of the list
+    const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
+    const { data: post } = await axios.post(this.state.apiEndpoint, item);
+    const posts = [post, ...this.state.posts];
     this.setState({ posts });
   }
 
-  handleUpdate(post) {
-    console.log('Update', post);
+  async handleUpdate(post) {
+    post.title = 'UPDATED';
+    await axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+    const posts = this.state.posts;
+    const index = posts.indexOf(post);
+    posts[index] = post;
+    this.setState({ posts });
   }
 
   handleDelete(post) {
@@ -40,7 +71,7 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
-        <p className="fw-light text-end">Viewing {this.state.posts.length} Entries</p>
+        <p className="fw-light text-end">Viewing {this.state.posts.length} entries</p>
         <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
           Add Post
         </button>
