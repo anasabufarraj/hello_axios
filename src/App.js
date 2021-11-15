@@ -12,8 +12,10 @@ class App extends Component {
 
     this.handleAdd = this.handleAdd.bind(this);
     this.handleUpdate = this.handleUpdate.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
   }
 
+  // DOC: List of Axios promise/then methods
   // componentDidMount() {
   //   const promise = axios.get(this.state.apiEndpoint);
   //   promise.then((res) => {
@@ -21,7 +23,7 @@ class App extends Component {
   //     this.setState({ posts });
   //   });
   // }
-
+  //
   // handleAdd() {
   //   const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
   //   const promise = axios.post(this.state.apiEndpoint, item);
@@ -31,41 +33,59 @@ class App extends Component {
   //     this.setState({ posts });
   //   });
   // }
-
+  //
   // handleUpdate(post) {
   //   post.title = 'Updated';
   //   const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
-  //   promise.then((res) => {
+  //   promise.then(() => {
   //     const posts = this.state.posts;
-  //     const index = posts.indexOf(res.data);
+  //     const index = posts.indexOf(post);
   //     posts[index] = post;
+  //     this.setState({ posts });
+  //   });
+  // }
+  //
+  //
+  // handleDelete(post) {
+  //   const promise = axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+  //   promise.then(() => {
+  //     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
   //     this.setState({ posts });
   //   });
   // }
 
   async componentDidMount() {
+    // DOC: Read data form the API endpoint and update the table
     const { data: posts } = await axios.get(this.state.apiEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
-    const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
+    // DOC: Add a post on the endpoint, then add to the table
+    const item = { title: 'Lorem', body: 'Lorem ipsum' };
     const { data: post } = await axios.post(this.state.apiEndpoint, item);
+
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
   }
 
   async handleUpdate(post) {
+    // DOC: Update a post on the endpoint, then update in the table
     post.title = 'UPDATED';
     await axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+
     const posts = this.state.posts;
-    const index = posts.indexOf(post);
+    const index = this.state.posts.indexOf(post);
     posts[index] = post;
     this.setState({ posts });
   }
 
-  handleDelete(post) {
-    console.log('Delete', post);
+  async handleDelete(post) {
+    // DOC: Delete a post on the endpoint, then remove from the table
+    await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+
+    const posts = this.state.posts.filter((_p) => _p.id !== post.id);
+    this.setState({ posts });
   }
 
   render() {
