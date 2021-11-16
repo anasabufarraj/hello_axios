@@ -88,11 +88,10 @@ class App extends Component {
     const revert = this.state.posts;
 
     try {
-      // await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
-      await axios.delete(`s${this.state.apiEndpoint}/${post.id}`);
+      await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
       console.info('Operation succeeded');
     } catch (err) {
-      if (err.response && err.response.status === 404) {
+      if (err.response.status === 404) {
         // DOC: Handle expected errors
         console.log(err.response.status, 'Post not found');
       } else {
