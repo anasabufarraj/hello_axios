@@ -15,7 +15,7 @@ class App extends Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
-  // DOC: List of Axios promise/then methods
+  // DOC: Axios pessimistic promise/then methods
   // componentDidMount() {
   //   const promise = axios.get(this.state.apiEndpoint);
   //   promise.then((res) => {
@@ -81,18 +81,26 @@ class App extends Component {
   }
 
   async handleDelete(post) {
-    // DOC: Optimistically deletes an item. Then try a DELETE request, if failed, reverts the state.
+    // DOC: Optimistically deletes an item. Then try a DELETE request, if failed, handles the error and reverts the state.
     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
     this.setState({ posts });
 
     const revert = this.state.posts;
 
     try {
-      await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+      // await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+      await axios.delete(`s${this.state.apiEndpoint}/${post.id}`);
       console.info('Operation succeeded');
     } catch (err) {
+      if (err.response && err.response.status === 404) {
+        // DOC: Handle expected errors
+        console.log(err.response.status, 'Post not found');
+      } else {
+        // DOC: Handle unexpected errors
+        console.log(err, 'An unexpected error occurred!');
+      }
+
       this.setState({ posts: revert });
-      console.error('Operation failed');
     }
   }
 
