@@ -2,6 +2,18 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
 
+// DOC: Handle unexpected response errors using Axios interceptors
+axios.interceptors.response.use(null, (err) => {
+  const expectedErrors = err.response && err.response.status >= 400 && err.response.status < 500;
+
+  // Handle only unexpected errors
+  if (!expectedErrors) {
+    console.log(err, 'An unexpected err occurred.');
+  }
+
+  return Promise.reject(err);
+});
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -72,7 +84,7 @@ class App extends Component {
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
-    await axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+    await axios.put(`${this.state.apiEndpoint}/${post.id}`, post);
 
     const posts = this.state.posts;
     const index = this.state.posts.indexOf(post);
@@ -81,7 +93,7 @@ class App extends Component {
   }
 
   async handleDelete(post) {
-    // DOC: Optimistically deletes an item. Then try a DELETE request, if failed, handles the error and reverts the state.
+    // DOC: Optimistically deletes an item. Then submit a DELETE request. Finally, handle expected error and revert.
     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
     this.setState({ posts });
 
@@ -89,14 +101,10 @@ class App extends Component {
 
     try {
       await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
-      console.info('Operation succeeded');
     } catch (err) {
-      if (err.response.status === 404) {
-        // DOC: Handle expected errors
-        console.log(err.response.status, 'Post not found');
-      } else {
-        // DOC: Handle unexpected errors
-        console.log(err, 'An unexpected error occurred!');
+      // Handle only expected errors
+      if (err.response && err.response.status === 404) {
+        console.log(err, 'Post has not been found');
       }
 
       this.setState({ posts: revert });
