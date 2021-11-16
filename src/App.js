@@ -1,18 +1,6 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import './App.css';
-
-// DOC: Handle unexpected response errors using Axios interceptors
-axios.interceptors.response.use(null, (err) => {
-  const expectedErrors = err.response && err.response.status >= 400 && err.response.status < 500;
-
-  // Handle only unexpected errors
-  if (!expectedErrors) {
-    console.log(err, 'An unexpected err occurred.');
-  }
-
-  return Promise.reject(err);
-});
+import http from './services/httpService';
 
 class App extends Component {
   constructor(props) {
@@ -68,14 +56,14 @@ class App extends Component {
 
   async componentDidMount() {
     // DOC: Read data form the API endpoint and update the view
-    const { data: posts } = await axios.get(this.state.apiEndpoint);
+    const { data: posts } = await http.get(this.state.apiEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
     // DOC: Create a post on the endpoint, then update the view
     const item = { title: 'Lorem', body: 'Lorem ipsum' };
-    const { data: post } = await axios.post(this.state.apiEndpoint, item);
+    const { data: post } = await http.post(this.state.apiEndpoint, item);
 
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
@@ -84,7 +72,7 @@ class App extends Component {
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
-    await axios.put(`${this.state.apiEndpoint}/${post.id}`, post);
+    await http.put(`${this.state.apiEndpoint}/${post.id}`, post);
 
     const posts = this.state.posts;
     const index = this.state.posts.indexOf(post);
@@ -100,7 +88,7 @@ class App extends Component {
     const revert = this.state.posts;
 
     try {
-      await axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+      await http.delete(`${this.state.apiEndpoint}/${post.id}`);
     } catch (err) {
       // Handle only expected errors
       if (err.response && err.response.status === 404) {
