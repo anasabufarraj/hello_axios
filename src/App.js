@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import http from './services/httpService';
+import config from './config';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      apiEndpoint: 'https://jsonplaceholder.typicode.com/posts',
       posts: [],
     };
 
@@ -15,56 +17,56 @@ class App extends Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
-  // DOC: Axios pessimistic promise/then methods
-  // componentDidMount() {
-  //   const promise = axios.get(this.state.apiEndpoint);
-  //   promise.then((res) => {
-  //     const posts = res.data;
-  //     this.setState({ posts });
-  //   });
-  // }
-  //
-  // handleAdd() {
-  //   const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
-  //   const promise = axios.post(this.state.apiEndpoint, item);
-  //   promise.then((res) => {
-  //     const post = res.data;
-  //     const posts = [post, ...this.state.posts];
-  //     this.setState({ posts });
-  //   });
-  // }
-  //
-  // handleUpdate(post) {
-  //   post.title = 'Updated';
-  //   const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
-  //   promise.then(() => {
-  //     const posts = this.state.posts;
-  //     const index = posts.indexOf(post);
-  //     posts[index] = post;
-  //     this.setState({ posts });
-  //   });
-  // }
-  //
-  //
-  // handleDelete(post) {
-  //   const promise = axios.delete(`${this.state.apiEndpoint}/${post.id}`);
-  //   promise.then(() => {
-  //     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
-  //     this.setState({ posts });
-  //   });
-  // }
+  /* DOC: Axios pessimistic promise/then methods
+  componentDidMount() {
+    const promise = axios.get(this.state.apiEndpoint);
+    promise.then((res) => {
+      const posts = res.data;
+      this.setState({ posts });
+    });
+  }
+
+  handleAdd() {
+    const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
+    const promise = axios.post(this.state.apiEndpoint, item);
+    promise.then((res) => {
+      const post = res.data;
+      const posts = [post, ...this.state.posts];
+      this.setState({ posts });
+    });
+  }
+
+  handleUpdate(post) {
+    post.title = 'Updated';
+    const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+    promise.then(() => {
+      const posts = this.state.posts;
+      const index = posts.indexOf(post);
+      posts[index] = post;
+      this.setState({ posts });
+    });
+  }
+
+
+  handleDelete(post) {
+    const promise = axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+    promise.then(() => {
+      const posts = this.state.posts.filter((_p) => _p.id !== post.id);
+      this.setState({ posts });
+    });
+  }
+  */
 
   async componentDidMount() {
     // DOC: Read data form the API endpoint and update the view
-    const { data: posts } = await http.get(this.state.apiEndpoint);
+    const { data: posts } = await http.get(config.apiEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
     // DOC: Create a post on the endpoint, then update the view
     const item = { title: 'Lorem', body: 'Lorem ipsum' };
-    const { data: post } = await http.post(this.state.apiEndpoint, item);
-
+    const { data: post } = await http.post(config.apiEndpoint, item);
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
   }
@@ -72,10 +74,9 @@ class App extends Component {
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
-    await http.put(`${this.state.apiEndpoint}/${post.id}`, post);
-
+    await http.put(`${config.apiEndpoint}/${post.id}`, post);
     const posts = this.state.posts;
-    const index = this.state.posts.indexOf(post);
+    const index = posts.indexOf(post);
     posts[index] = post;
     this.setState({ posts });
   }
@@ -87,10 +88,10 @@ class App extends Component {
 
     const revert = this.state.posts;
 
+    // Handle only expected errors
     try {
-      await http.delete(`${this.state.apiEndpoint}/${post.id}`);
+      await http.delete(`${config.apiEndpoint}/${post.id}`);
     } catch (err) {
-      // Handle only expected errors
       if (err.response && err.response.status === 404) {
         console.log(err, 'Post has not been found');
       }
@@ -102,6 +103,7 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
+        <ToastContainer />
         <div className="row align-items-end">
           <div className="col">
             <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
