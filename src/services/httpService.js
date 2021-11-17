@@ -1,18 +1,16 @@
+import React from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import * as Sentry from '@sentry/react';
+import config from '../config.json';
 
 axios.interceptors.response.use(null, (err) => {
   const expectedErrors = err.response && err.response.status >= 400 && err.response.status < 500;
 
   // Handle only unexpected errors
   if (!expectedErrors) {
-    toast.error('An unexpected err occurred!', {
-      position: 'bottom-left',
-      theme: 'colored',
-      autoClose: 5000,
-      pauseOnHover: false,
-      hideProgressBar: false,
-    });
+    Sentry.captureException(err);
+    toast.error('An unexpected err occurred!', config.toastOptions);
   }
 
   return Promise.reject(err);

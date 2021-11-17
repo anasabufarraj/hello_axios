@@ -1,3 +1,10 @@
 {
-  "apiEndpoint": "https://jsonplaceholder.typicode.com/posts"
+  "apiEndpoint": "https://jsonplaceholder.typicode.com/posts",
+  "toastOptions": {
+    "position": "bottom-left",
+    "theme": "colored",
+    "autoClose": 5000,
+    "pauseOnHover": false,
+    "hideProgressBar": true
+  }
 }

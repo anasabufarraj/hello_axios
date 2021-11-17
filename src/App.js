@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import http from './services/httpService';
-import config from './config';
+import * as Sentry from '@sentry/react';
+import config from './config.json';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       posts: [],
+      toastOptions: {
+        position: 'bottom-left',
+        theme: 'colored',
+        autoClose: 5000,
+        pauseOnHover: false,
+        hideProgressBar: true,
+      },
     };
 
     this.handleAdd = this.handleAdd.bind(this);
@@ -91,9 +99,11 @@ class App extends Component {
     // Handle only expected errors
     try {
       await http.delete(`${config.apiEndpoint}/${post.id}`);
+      toast.info('Operation succeeded!', config.toastOptions);
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        console.log(err, 'Post has not been found');
+        Sentry.captureException(err);
+        toast.error('Post not found!', config.toastOptions);
       }
 
       this.setState({ posts: revert });
@@ -103,7 +113,7 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
-        <ToastContainer />
+        <ToastContainer limit={1} />
         <div className="row align-items-end">
           <div className="col">
             <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
