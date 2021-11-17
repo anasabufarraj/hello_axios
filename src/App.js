@@ -3,8 +3,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import http from './services/httpService';
-import * as Sentry from '@sentry/react';
 import config from './config.json';
+import logService from './services/logService';
 
 class App extends Component {
   constructor(props) {
@@ -25,45 +25,44 @@ class App extends Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
-  /* DOC: Axios pessimistic promise/then methods
-  componentDidMount() {
-    const promise = axios.get(this.state.apiEndpoint);
-    promise.then((res) => {
-      const posts = res.data;
-      this.setState({ posts });
-    });
-  }
-
-  handleAdd() {
-    const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
-    const promise = axios.post(this.state.apiEndpoint, item);
-    promise.then((res) => {
-      const post = res.data;
-      const posts = [post, ...this.state.posts];
-      this.setState({ posts });
-    });
-  }
-
-  handleUpdate(post) {
-    post.title = 'Updated';
-    const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
-    promise.then(() => {
-      const posts = this.state.posts;
-      const index = posts.indexOf(post);
-      posts[index] = post;
-      this.setState({ posts });
-    });
-  }
-
-
-  handleDelete(post) {
-    const promise = axios.delete(`${this.state.apiEndpoint}/${post.id}`);
-    promise.then(() => {
-      const posts = this.state.posts.filter((_p) => _p.id !== post.id);
-      this.setState({ posts });
-    });
-  }
-  */
+  // DOC: Axios pessimistic promise/then methods
+  // componentDidMount() {
+  //   const promise = axios.get(this.state.apiEndpoint);
+  //   promise.then((res) => {
+  //     const posts = res.data;
+  //     this.setState({ posts });
+  //   });
+  // }
+  //
+  // handleAdd() {
+  //   const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
+  //   const promise = axios.post(this.state.apiEndpoint, item);
+  //   promise.then((res) => {
+  //     const post = res.data;
+  //     const posts = [post, ...this.state.posts];
+  //     this.setState({ posts });
+  //   });
+  // }
+  //
+  // handleUpdate(post) {
+  //   post.title = 'Updated';
+  //   const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+  //   promise.then(() => {
+  //     const posts = this.state.posts;
+  //     const index = posts.indexOf(post);
+  //     posts[index] = post;
+  //     this.setState({ posts });
+  //   });
+  // }
+  //
+  //
+  // handleDelete(post) {
+  //   const promise = axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+  //   promise.then(() => {
+  //     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
+  //     this.setState({ posts });
+  //   });
+  // }
 
   async componentDidMount() {
     // DOC: Read data form the API endpoint and update the view
@@ -77,12 +76,14 @@ class App extends Component {
     const { data: post } = await http.post(config.apiEndpoint, item);
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
+    toast.info('Added succeeded!', config.toastOptions);
   }
 
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
     await http.put(`${config.apiEndpoint}/${post.id}`, post);
+    toast.info('Updated succeeded!', config.toastOptions);
     const posts = this.state.posts;
     const index = posts.indexOf(post);
     posts[index] = post;
@@ -99,10 +100,10 @@ class App extends Component {
     // Handle only expected errors
     try {
       await http.delete(`${config.apiEndpoint}/${post.id}`);
-      toast.info('Operation succeeded!', config.toastOptions);
+      toast.info('Deleted succeeded!', config.toastOptions);
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        Sentry.captureException(err);
+        logService.log(err);
         toast.error('Post not found!', config.toastOptions);
       }
 
@@ -113,7 +114,7 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
-        <ToastContainer limit={1} />
+        <ToastContainer limit={3} />
         <div className="row align-items-end">
           <div className="col">
             <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
