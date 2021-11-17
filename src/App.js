@@ -82,7 +82,7 @@ class App extends Component {
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
-    await http.put(`${config.apiEndpoint}/${post.id}`, post);
+    await http.patch(`${config.apiEndpoint}/${post.id}`, post);
     toast.info('Updated succeeded!', config.toastOptions);
     const posts = this.state.posts;
     const index = posts.indexOf(post);
