@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
-import http from './services/httpService';
 import config from './config.json';
+import httpService from './services/httpService';
 import logService from './services/logService';
 
 class App extends Component {
@@ -11,13 +11,6 @@ class App extends Component {
     super(props);
     this.state = {
       posts: [],
-      toastOptions: {
-        position: 'bottom-left',
-        theme: 'colored',
-        autoClose: 5000,
-        pauseOnHover: false,
-        hideProgressBar: true,
-      },
     };
 
     this.handleAdd = this.handleAdd.bind(this);
@@ -66,14 +59,14 @@ class App extends Component {
 
   async componentDidMount() {
     // DOC: Read data form the API endpoint and update the view
-    const { data: posts } = await http.get(config.apiEndpoint);
+    const { data: posts } = await httpService.get(config.apiEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
     // DOC: Create a post on the endpoint, then update the view
     const item = { title: 'Lorem', body: 'Lorem ipsum' };
-    const { data: post } = await http.post(config.apiEndpoint, item);
+    const { data: post } = await httpService.post(config.apiEndpoint, item);
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
     toast.info('Added succeeded!', config.toastOptions);
@@ -82,7 +75,7 @@ class App extends Component {
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
-    await http.patch(`${config.apiEndpoint}/${post.id}`, post);
+    await httpService.patch(`${config.apiEndpoint}/${post.id}`, post);
     toast.info('Updated succeeded!', config.toastOptions);
     const posts = this.state.posts;
     const index = posts.indexOf(post);
@@ -99,7 +92,7 @@ class App extends Component {
 
     // Handle only expected errors
     try {
-      await http.delete(`${config.apiEndpoint}/${post.id}`);
+      await httpService.delete(`${config.apiEndpoint}/${post.id}`);
       toast.info('Deleted succeeded!', config.toastOptions);
     } catch (err) {
       if (err.response && err.response.status === 404) {
@@ -117,7 +110,7 @@ class App extends Component {
         <ToastContainer limit={3} />
         <div className="row align-items-end">
           <div className="col">
-            <button className="btn btn-primary mb-2" onClick={this.handleAdd}>
+            <button className="btn btn-dark mb-2" onClick={this.handleAdd}>
               Add Post
             </button>
           </div>
@@ -137,7 +130,7 @@ class App extends Component {
               <tr key={post.id}>
                 <td>{post.title}</td>
                 <td>
-                  <button className="btn btn-secondary btn-sm" onClick={() => this.handleUpdate(post)}>
+                  <button className="btn btn-primary btn-sm" onClick={() => this.handleUpdate(post)}>
                     Update
                   </button>
                 </td>
