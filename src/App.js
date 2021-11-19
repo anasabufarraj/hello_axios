@@ -20,7 +20,7 @@ class App extends Component {
 
   // DOC: Axios pessimistic promise/then methods
   // componentDidMount() {
-  //   const promise = axios.get(this.state.apiEndpoint);
+  //   const promise = axios.get(this.state.APIEndpoint);
   //   promise.then((res) => {
   //     const posts = res.data;
   //     this.setState({ posts });
@@ -29,7 +29,7 @@ class App extends Component {
   //
   // handleAdd() {
   //   const item = { id: '', title: 'Lorem', body: 'Lorem ipsum' };
-  //   const promise = axios.post(this.state.apiEndpoint, item);
+  //   const promise = axios.post(this.state.APIEndpoint, item);
   //   promise.then((res) => {
   //     const post = res.data;
   //     const posts = [post, ...this.state.posts];
@@ -39,7 +39,7 @@ class App extends Component {
   //
   // handleUpdate(post) {
   //   post.title = 'Updated';
-  //   const promise = axios.patch(`${this.state.apiEndpoint}/${post.id}`, post);
+  //   const promise = axios.patch(`${this.state.APIEndpoint}/${post.id}`, post);
   //   promise.then(() => {
   //     const posts = this.state.posts;
   //     const index = posts.indexOf(post);
@@ -50,7 +50,7 @@ class App extends Component {
   //
   //
   // handleDelete(post) {
-  //   const promise = axios.delete(`${this.state.apiEndpoint}/${post.id}`);
+  //   const promise = axios.delete(`${this.state.APIEndpoint}/${post.id}`);
   //   promise.then(() => {
   //     const posts = this.state.posts.filter((_p) => _p.id !== post.id);
   //     this.setState({ posts });
@@ -59,14 +59,14 @@ class App extends Component {
 
   async componentDidMount() {
     // DOC: Read data form the API endpoint and update the view
-    const { data: posts } = await httpService.get(config.apiEndpoint);
+    const { data: posts } = await httpService.get(config.APIEndpoint);
     this.setState({ posts });
   }
 
   async handleAdd() {
     // DOC: Create a post on the endpoint, then update the view
     const item = { title: 'Lorem', body: 'Lorem ipsum' };
-    const { data: post } = await httpService.post(config.apiEndpoint, item);
+    const { data: post } = await httpService.post(config.APIEndpoint, item);
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
     toast.info('Added succeeded!', config.toastOptions);
@@ -75,7 +75,7 @@ class App extends Component {
   async handleUpdate(post) {
     // DOC: Update a post on the endpoint, then update the view
     post.title = 'UPDATED';
-    await httpService.patch(`${config.apiEndpoint}/${post.id}`, post);
+    await httpService.put(`${config.APIEndpoint}/${post.id}`, post);
     toast.info('Updated succeeded!', config.toastOptions);
     const posts = this.state.posts;
     const index = posts.indexOf(post);
@@ -92,7 +92,7 @@ class App extends Component {
 
     // Handle only expected errors
     try {
-      await httpService.delete(`${config.apiEndpoint}/${post.id}`);
+      await httpService.delete(`${config.APIEndpoint}/${post.id}`);
       toast.info('Deleted succeeded!', config.toastOptions);
     } catch (err) {
       if (err.response && err.response.status === 404) {

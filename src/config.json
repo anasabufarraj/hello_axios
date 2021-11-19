@@ -1,5 +1,5 @@
 {
-  "apiEndpoint": "https://jsonplaceholder.typicode.com/posts",
+  "APIEndpoint": "https://jsonplaceholder.typicode.com/posts",
   "toastOptions": {
     "position": "bottom-left",
     "theme": "colored",
